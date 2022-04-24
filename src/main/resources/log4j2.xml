@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration packages="io.sorted" status="WARN">
+  <Appenders>
+    <Console name="console">
+      <PatternLayout pattern="%d %logger [%p] %m%n"/>
+    </Console>
+
+    <!-- Don't forget to set property
+      log4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+     to make all loggers asynchronous. -->
+    <!-- Async Loggers will auto-flush in batches, so switch off immediateFlush. -->
+    <RollingFile name="file" fileName="logs/sorted.log" filePattern="logs/sorted-%i.log" immediateFlush="false">
+      <PatternLayout>
+        <Pattern>%d %logger [%p] %m%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <SizeBasedTriggeringPolicy size="1 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="5"/>
+    </RollingFile>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="console"/>
+      <AppenderRef ref="file"/>
+    </Root>
+  </Loggers>
+</Configuration>
