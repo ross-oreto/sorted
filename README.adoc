@@ -2,24 +2,98 @@
 
 image:https://img.shields.io/badge/vert.x-4.2.7-purple.svg[link="https://vertx.io"]
 
-This application was generated using http://start.vertx.io
+== A web application to sort things out
 
 == Building
 
 To launch your tests:
-```
-./mvnw clean test
-```
+
+[source]
+----
+mvn clean test
+----
 
 To package your application:
-```
-./mvnw clean package
-```
+
+[source]
+----
+mvn clean package
+----
 
 To run your application:
-```
-./mvnw clean compile exec:java
-```
+
+[source]
+----
+mvn clean compile exec:java
+----
+or with vertx maven plugin:
+
+[source]
+----
+mvn vertx:run
+----
+
+navigate to
+http://localhost:8888/info
+
+
+Debug Application:
+disable event loop to hit break points
+
+[source]
+----
+main class: io.vertx.core.Launcher
+program args: run io.sorted.app.MainVerticle -Dvertx.options.maxEventLoopExecuteTime=100000000000 -Ddebug=true
+----
+
+== Config
+The application is configured using first the default retrievers which are the following in order:
+
+* The Vert.x verticle config()
+* The system properties
+* The environment variables
+* A conf/config.json file. This path can be overridden using the vertx-config-path system property or VERTX_CONFIG_PATH environment variable.
+* conf/sorted.conf (uses hocon format https://github.com/lightbend/config)
+* conf/sorted-secrets.conf (also hocon and is ignored by VCS)
+
+If any config changes are detected, the server will restart to load the config changes
+
+== Modes
+to set the application mode looks for:
+ - system property "mode"
+ - env variable "mode"
+ - default mode is "dev"
+
+[source]
+----
+java -jar target/sorted.jar -Dmode=prod
+----
+
+== Modules
+Modules are similar to MVC controllers.
+
+* To create a new module extend io.sorted.app.AppModule
+* The modules routes will automatically be mounted a sub routes using the modules name. For example the InfoModule is mounted at /info
+* finally register the new module in the MainVerticle getModules method and the MainVerticle will deploy the new module.
+
+== Dependency Injection/Services
+Vertx does not use classic DI instead it uses the event bus and services/service proxies.
+
+* to register a new service, use the MainVerticle.registerServices method to bind the service interface to the implementation.
+
+== Commands
+Get the app version
+[source]
+----
+java -jar target/sorted.jar -v
+----
+Get the version of Vert.x
+
+[source]
+----
+java -jar target/sorted.jar -version
+----
+
 
 == Help
 

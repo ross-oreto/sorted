@@ -1,6 +1,6 @@
 package io.sorted.command;
 
-import io.sorted.MainVerticle;
+import io.sorted.app.MainVerticle;
 import io.vertx.core.cli.CLIException;
 import io.vertx.core.cli.annotations.Description;
 import io.vertx.core.cli.annotations.Name;

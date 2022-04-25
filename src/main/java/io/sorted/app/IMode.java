@@ -1,4 +1,4 @@
-package io.sorted;
+package io.sorted.app;
 
 import java.util.Arrays;
 import java.util.List;

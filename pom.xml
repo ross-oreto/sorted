@@ -6,7 +6,7 @@
 
   <groupId>io.sorted</groupId>
   <artifactId>sorted</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
 
     <vertx.version>4.2.7</vertx.version>
 
-    <main.verticle>io.sorted.MainVerticle</main.verticle>
+    <main.verticle>io.sorted.app.MainVerticle</main.verticle>
     <launcher.class>io.vertx.core.Launcher</launcher.class>
 
     <log4j.version>2.17.2</log4j.version>
@@ -138,12 +138,31 @@
                   <manifestEntries>
                     <Main-Class>${launcher.class}</Main-Class>
                     <Main-Verticle>${main.verticle}</Main-Verticle>
+                    <Specification-Title>${project.artifactId}</Specification-Title>
+                    <Specification-Version>${project.version}</Specification-Version>
+                    <Implementation-Title>${project.artifactId}</Implementation-Title>
+                    <Implementation-Version>${project.version}</Implementation-Version>
+                    <Implementation-Vendor-Id>${project.groupId}</Implementation-Vendor-Id>
                   </manifestEntries>
                 </transformer>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
               </transformers>
-              <outputFile>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar
+              <outputFile>${project.build.directory}/${project.artifactId}.jar
               </outputFile>
+              <filters>
+                <filter>
+                  <artifact>*</artifact>
+                  <excludes>
+                    <exclude>module-info.class</exclude>
+                    <exclude>META-INF/versions/9/module-info.class</exclude>
+                    <exclude>META-INF/LICENSE</exclude>
+                    <exclude>META-INF/NOTICE</exclude>
+                    <exclude>META-INF/DEPENDENCIES</exclude>
+                    <exclude>META-INF/MANIFEST.MF</exclude>
+                    <exclude>META-INF/io.netty.versions.properties</exclude>
+                  </excludes>
+                </filter>
+              </filters>
             </configuration>
           </execution>
         </executions>
@@ -179,7 +198,7 @@
           </execution>
         </executions>
         <configuration>
-          <verticle>io.sorted.MainVerticle</verticle>
+          <verticle>io.sorted.app.MainVerticle</verticle>
           <appId>sorted</appId>
           <redeploy>true</redeploy>
         </configuration>

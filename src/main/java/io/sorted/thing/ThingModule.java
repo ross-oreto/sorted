@@ -1,9 +1,11 @@
 package io.sorted.thing;
 
-import io.sorted.AppModule;
+import io.sorted.app.AppModule;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
+import io.vertx.ext.web.handler.BodyHandler;
 
 public class ThingModule extends AppModule {
   private ThingService thingService;
@@ -20,10 +22,22 @@ public class ThingModule extends AppModule {
 
   @Override
   public void start() {
-    router.route().handler(this::index);
+    router.get().handler(this::index);
+    router.post().handler(BodyHandler.create()).handler(this::save);
+  }
+
+  @Override
+  public void stop() throws Exception {
+    log.info("{} stopped", ThingModule.class.getSimpleName());
+    thingService.close();
   }
 
   protected void index(RoutingContext ctx) {
-    thingService.list("things").onSuccess(ctx::json);
+    thingService.list().onSuccess(ctx::json);
+  }
+
+  protected void save(RoutingContext ctx) {
+    JsonObject json = ctx.getBodyAsJson();
+    thingService.save(json).onSuccess(ctx::json).onFailure(ctx::fail);
   }
 }

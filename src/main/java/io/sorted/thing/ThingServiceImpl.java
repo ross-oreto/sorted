@@ -1,24 +1,29 @@
 package io.sorted.thing;
 
 import io.vertx.core.Future;
-import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
 
-public class ThingServiceImpl implements ThingService {
-  private final MongoClient mongo;
+import java.util.List;
 
-  public ThingServiceImpl(MongoClient mongo) {
-    this.mongo = mongo;
+public record ThingServiceImpl(MongoClient mongo, String collectionName) implements ThingService {
+
+  @Override
+  public Future<JsonObject> save(JsonObject jsonObject) {
+    return mongo.save(collectionName(), jsonObject).compose(this::get);
+  }
+
+  public Future<JsonObject> get(String id) {
+    return mongo.findOne(collectionName(), new JsonObject().put("_id", id), null);
   }
 
   @Override
-  public Future<JsonArray> list(String collection) {
-    return Future.succeededFuture(
-      new JsonArray()
-        .add(new JsonObject().put("name", "thing1"))
-        .add(new JsonObject().put("name", "thing2"))
-        .add(new JsonObject().put("name", "thing3"))
-    );
+  public Future<List<JsonObject>> list() {
+    return mongo.find(collectionName(), new JsonObject());
+  }
+
+  @Override
+  public Future<Void> close() {
+    return mongo.close();
   }
 }

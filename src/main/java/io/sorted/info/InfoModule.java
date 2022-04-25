@@ -1,5 +1,8 @@
-package io.sorted;
+package io.sorted.info;
 
+import io.sorted.app.AppModule;
+import io.sorted.app.IMode;
+import io.sorted.app.MainVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;

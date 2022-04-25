@@ -1,6 +1,7 @@
-package io.sorted;
+package io.sorted.app;
 
 import io.sorted.command.AppVersionCommand;
+import io.sorted.info.InfoModule;
 import io.sorted.thing.ThingModule;
 import io.sorted.thing.ThingService;
 import io.sorted.thing.ThingServiceImpl;
@@ -35,6 +36,11 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   protected final JsonObject config = new JsonObject();
   private HttpServer server;
   private Router router;
+
+  @Override
+  public final JsonObject config() {
+    return this.config;
+  }
 
   /**
    * Start the verticle.<p>
@@ -103,7 +109,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * Register any needed services on the event bus
    */
   protected void registerServices() {
-    registerService(ThingService.class, new ThingServiceImpl(MongoClient.createShared(vertx, config)));
+    registerService(ThingService.class
+      , new ThingServiceImpl(MongoClient.createShared(vertx, config.getJsonObject("mongo")), "things"));
   }
 
   /**
@@ -157,6 +164,11 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
       if (stop.succeeded()) {
         log.info("restarting http server...");
         int port = config().getInteger(PORT_PROP, DEFAULT_PORT);
+        router.clear();
+        registerServices();
+        deployModules();
+        server.requestHandler(router);
+
         server.listen(port, http -> {
           if (http.succeeded()) {
             log.info("HTTP server started on port {}", port);

@@ -1,4 +1,4 @@
-package io.sorted;
+package io.sorted.app;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;

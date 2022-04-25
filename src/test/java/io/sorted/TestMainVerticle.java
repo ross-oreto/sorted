@@ -1,5 +1,6 @@
 package io.sorted;
 
+import io.sorted.app.MainVerticle;
 import io.vertx.core.Vertx;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;

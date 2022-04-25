@@ -1,4 +1,4 @@
-package io.sorted;
+package io.sorted.app;
 
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
@@ -133,8 +133,7 @@ public interface Configurable extends IMode {
   /**
    * Configure the application using the specified file and listen for changes
    * @param name Config file name
-   * @param additionalRetriever Any additional retriever associated with this name
-   * , such as environment specific or sensitive properties
+   * @param additionalRetriever Any additional retriever to use
    * @return A future config object
    */
   default Future<JsonObject> configure(String name, ConfigRetriever additionalRetriever) {
