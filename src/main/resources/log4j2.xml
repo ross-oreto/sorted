@@ -21,6 +21,10 @@
   </Appenders>
 
   <Loggers>
+    <Logger name="org.mongodb" level="info" additivity="false">
+      <AppenderRef ref="file" />
+    </Logger>
+
     <Root level="info">
       <AppenderRef ref="console"/>
       <AppenderRef ref="file"/>

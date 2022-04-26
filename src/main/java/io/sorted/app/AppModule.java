@@ -32,4 +32,24 @@ public abstract class AppModule extends AbstractVerticle implements IMode {
   public Router getRouter() {
     return router;
   }
+
+  /**
+   * If your verticle does a simple, synchronous start-up then override this method and put your start-up
+   * code in here.
+   */
+  @Override
+  public void start() throws Exception {
+    super.start();
+    log.info("starting module {}", getName());
+  }
+
+  /**
+   * If your verticle has simple synchronous clean-up tasks to complete then override this method and put your clean-up
+   * code in here.
+   */
+  @Override
+  public void stop() throws Exception {
+    super.stop();
+    log.info("stopping module {}", getName());
+  }
 }

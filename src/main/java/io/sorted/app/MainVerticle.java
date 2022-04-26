@@ -65,7 +65,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * @param startPromise  a promise which should be called when verticle start-up is complete.
    */
   @Override
-  public void start(Promise<Void> startPromise) {
+  public void start(Promise<Void> startPromise) throws Exception {
+    super.start();
     // get any configuration from the context
     config.mergeIn(context.config(), true);
     log = LoggerFactory.getLogger(MainVerticle.class.getSimpleName());
@@ -85,8 +86,9 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * @param stopPromise  a promise which should be called when verticle clean-up is complete.
    */
   @Override
-  public void stop(Promise<Void> stopPromise) {
-    log.info("{} stopping", MainVerticle.class.getSimpleName());
+  public void stop(Promise<Void> stopPromise) throws Exception {
+    super.stop();
+    log.info("stopping {}", MainVerticle.class.getName());
     stopPromise.complete();
   }
 

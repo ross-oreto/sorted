@@ -29,21 +29,10 @@ public class ThingModule extends AppModule {
    */
   @Override
   public void init(Vertx vertx, Context context) {
-    thingRepo = Service.get(vertx, ThingRepo.class);;
-  }
-
-  /**
-   * Start the verticle.<p>
-   * This is called by Vert.x when the verticle instance is deployed. Don't call it yourself.<p>
-   * If your verticle does things in its startup which take some time then you can override this method
-   * and call the startFuture some time later when start up is complete.
-   * @param startPromise  a promise which should be called when verticle start-up is complete.
-   */
-  @Override
-  public void start(Promise<Void> startPromise) {
+    super.init(vertx, context);
+    thingRepo = Service.get(vertx, ThingRepo.class);
     router.get().handler(this::index);
     router.post().handler(BodyHandler.create()).handler(this::save);
-    startPromise.complete();
   }
 
   /**
@@ -54,8 +43,8 @@ public class ThingModule extends AppModule {
    * @param stopPromise a promise which should be called when verticle clean-up is complete.
    */
   @Override
-  public void stop(Promise<Void> stopPromise) {
-    log.info("{} stopping", ThingModule.class.getSimpleName());
+  public void stop(Promise<Void> stopPromise) throws Exception {
+    super.stop();
     thingRepo.close().onComplete(result -> stopPromise.complete());
   }
 
