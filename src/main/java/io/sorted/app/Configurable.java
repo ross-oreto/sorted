@@ -9,6 +9,9 @@ import io.vertx.core.json.JsonObject;
 
 import java.nio.file.Paths;
 
+/**
+ * Support configuring the application using various data sources
+ */
 public interface Configurable extends IMode {
   String DEFAULT_CONF_EXT = "conf";
   String ENABLED_PROP = "enabled";
@@ -34,11 +37,19 @@ public interface Configurable extends IMode {
     return "conf";
   }
 
+  /**
+   * Get the current app mode
+   * @return The application mode
+   */
   @Override
   default String getMode() {
     return config().getString(MODE_PROP, IMode.super.getMode());
   }
 
+  /**
+   * Determine if running in a debug mode
+   * @return True if in debug mode, false otherwise
+   */
   @Override
   default boolean isDebugging() {
     return config().getBoolean(DEBUG_PROP, IMode.super.isDebugging());
@@ -139,11 +150,14 @@ public interface Configurable extends IMode {
   default Future<JsonObject> configure(String name, ConfigRetriever additionalRetriever) {
     Vertx vertx = getVertx();
 
+    // Add file stores checking for any secrets companion files
     ConfigRetrieverOptions retrieverOptions = new ConfigRetrieverOptions()
       .addStore(addFileStore(configFilePath(name)))
       .addStore(addFileStore(configFilePath(name + "-secrets")));
 
     ConfigRetriever retriever = ConfigRetriever.create(vertx, retrieverOptions);
+
+    // listen for changes and respond using onConfigChange
     retriever.listen(change -> {
       System.out.println(change.getNewConfiguration().encodePrettily());
       config().mergeIn(change.getNewConfiguration(), true);
@@ -154,6 +168,8 @@ public interface Configurable extends IMode {
       config().mergeIn(change.getNewConfiguration(), true);
       onConfigChange().run();
     });
+
+    // merge all configuration into one
     return retriever.getConfig()
       .compose(it -> {
         config().mergeIn(it, true);
@@ -161,13 +177,26 @@ public interface Configurable extends IMode {
       }).compose(it -> Future.succeededFuture(config().mergeIn(it, true)));
   }
 
+  /**
+   * Configure the application using the specified file and listen for changes
+   * @param name Config file name
+   * @return A future config object
+   */
   default Future<JsonObject> configure(String name) {
     return configure(name, defaultRetriever());
   }
 
+  /**
+   * Configure the application using the default file and listen for changes
+   * @return A future config object
+   */
   default Future<JsonObject> configure() {
     return configure("sorted");
   }
 
+  /**
+   * When the app config changes do something
+   * @return a Runnable
+   */
   Runnable onConfigChange();
 }

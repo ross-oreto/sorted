@@ -23,6 +23,10 @@ import java.util.Stack;
 @Summary("Report the version of the application")
 @Description("Prints the version of the application according to the maven artifact.")
 public class AppVersionCommand extends DefaultCommand {
+  /**
+   * Executes the command.
+   * @throws CLIException If anything went wrong.
+   */
   @Override
   public void run() throws CLIException {
     Optional<String> version = getVersion();
@@ -33,11 +37,19 @@ public class AppVersionCommand extends DefaultCommand {
     }
   }
 
+  /**
+   * Get the version reported by the manifest (if running from a jar)
+   * @return Some application version, empty if a version isn't found
+   */
   public static Optional<String> getVersion() {
     String version = MainVerticle.class.getPackage().getImplementationVersion();
     return Objects.nonNull(version) ? Optional.of(version) : pomVersion();
   }
 
+  /**
+   * Check the pom file for the version
+   * @return Some application version, empty if a version isn't found
+   */
   // parse the version from the POM file.
   public static Optional<String> pomVersion() {
     try {

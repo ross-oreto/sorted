@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 
 @RunWith(VertxUnitRunner.class)
 public class TestMainVerticle {
-
   @Rule
   public RunTestOnContext rule = new RunTestOnContext();
 

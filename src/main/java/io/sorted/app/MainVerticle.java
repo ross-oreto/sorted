@@ -1,10 +1,11 @@
 package io.sorted.app;
 
+import io.sorted.app.service.Service;
 import io.sorted.command.AppVersionCommand;
 import io.sorted.info.InfoModule;
 import io.sorted.thing.ThingModule;
-import io.sorted.thing.ThingService;
-import io.sorted.thing.ThingServiceImpl;
+import io.sorted.thing.ThingRepo;
+import io.sorted.thing.ThingRepoImpl;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.Promise;
@@ -12,10 +13,20 @@ import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
-import io.vertx.serviceproxy.ServiceBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Entry point of the application
+ * Configured as follows:
+ * The Vert.x verticle config()
+ * The system properties
+ * The environment variables
+ * conf/config.json file. This path can be overridden using the vertx-config-path system property or VERTX_CONFIG_PATH environment variable.
+ * conf/sorted.conf (uses hocon format <a href="https://github.com/lightbend/config">https://github.com/lightbend/config</a>)
+ * conf/sorted-secrets.conf (also hocon and is ignored by VCS)
+ * If any config changes are detected, the server will restart to load the config changes
+ */
 public class MainVerticle extends AbstractVerticle implements Configurable {
   protected static final String PORT_PROP = "port";
   protected static final int DEFAULT_PORT = 8888;
@@ -37,6 +48,10 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   private HttpServer server;
   private Router router;
 
+  /**
+   * Get the configuration of the verticle
+   * @return the configuration
+   */
   @Override
   public final JsonObject config() {
     return this.config;
@@ -62,9 +77,17 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
     });
   }
 
+  /**
+   * Stop the verticle.<p>
+   * This is called by Vert.x when the verticle instance is un-deployed. Don't call it yourself.<p>
+   * If your verticle does things in its shut-down which take some time then you can override this method
+   * and call the stopFuture some time later when clean-up is complete.
+   * @param stopPromise  a promise which should be called when verticle clean-up is complete.
+   */
   @Override
-  public final void stop() throws Exception {
-    log.info("{} stopped", MainVerticle.class.getSimpleName());
+  public void stop(Promise<Void> stopPromise) {
+    log.info("{} stopping", MainVerticle.class.getSimpleName());
+    stopPromise.complete();
   }
 
     /**
@@ -109,8 +132,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * Register any needed services on the event bus
    */
   protected void registerServices() {
-    registerService(ThingService.class
-      , new ThingServiceImpl(MongoClient.createShared(vertx, config.getJsonObject("mongo")), "things"));
+    registerService(ThingRepo.class
+      , new ThingRepoImpl(MongoClient.createShared(vertx, config.getJsonObject("mongo")), "things"));
   }
 
   /**
@@ -120,9 +143,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * @param <T> the type of the service interface
    */
   final <T, I extends T> void registerService(Class<T> tClass, I impl) {
-    new ServiceBinder(vertx)
-      .setAddress(tClass.getName())
-      .register(tClass, impl);
+    Service.register(vertx, tClass, impl);
   }
 
   /**

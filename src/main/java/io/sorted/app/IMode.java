@@ -4,10 +4,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Defines running modes for the application such as dev,test,prod,debug
+ */
 public interface IMode {
   String MODE_PROP = "mode";
   String DEBUG_PROP = "debug";
 
+  /**
+   * Get the current JDK version running
+   * @return The current java version
+   */
   static String getJavaVersion() {
     return Runtime.version().version()
       .stream()
@@ -21,7 +28,16 @@ public interface IMode {
   enum Mode {
     local, dev, test, uat, prod;
 
+    /**
+     * Get a list of all the mode names
+     */
     public static final List<String> names = Arrays.stream(values()).map(Enum::toString).collect(Collectors.toList());
+
+    /**
+     * Determines if the mode name is a valid mode
+     * @param mode The mode to test
+     * @return True if the mode name is valid, false otherwise
+     */
     public static boolean isValid(String mode) {
       return names.contains(mode);
     }
