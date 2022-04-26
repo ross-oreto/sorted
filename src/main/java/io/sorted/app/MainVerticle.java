@@ -1,7 +1,7 @@
 package io.sorted.app;
 
+import io.sorted.app.command.AppVersionCommand;
 import io.sorted.app.service.Service;
-import io.sorted.command.AppVersionCommand;
 import io.sorted.info.InfoModule;
 import io.sorted.thing.ThingModule;
 import io.sorted.thing.ThingRepo;

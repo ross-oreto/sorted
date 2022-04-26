@@ -1,4 +1,4 @@
-package io.sorted.command;
+package io.sorted.app.command;
 
 import io.vertx.core.spi.launcher.DefaultCommandFactory;
 

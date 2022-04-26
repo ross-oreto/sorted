@@ -1,4 +1,4 @@
-package io.sorted.command;
+package io.sorted.app.command;
 
 import io.sorted.app.MainVerticle;
 import io.vertx.core.cli.CLIException;

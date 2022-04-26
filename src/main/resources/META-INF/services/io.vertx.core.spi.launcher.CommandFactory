@@ -1,1 +1,1 @@
-io.sorted.command.AppVersionCommandFactory
+io.sorted.app.command.AppVersionCommandFactory
