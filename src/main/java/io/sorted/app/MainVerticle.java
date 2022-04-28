@@ -1,16 +1,18 @@
 package io.sorted.app;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.sorted.app.command.AppVersionCommand;
+import io.sorted.app.error.AppErrorHandler;
 import io.sorted.app.service.Service;
 import io.sorted.info.InfoModule;
 import io.sorted.thing.ThingModule;
 import io.sorted.thing.ThingRepo;
 import io.sorted.thing.ThingRepoImpl;
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
-import io.vertx.core.Promise;
+import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.ext.mongo.MongoClient;
 import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
@@ -48,6 +50,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   private HttpServer server;
   private Router router;
 
+  private AppErrorHandler appErrorHandler;
+
   /**
    * Get the configuration of the verticle
    * @return the configuration
@@ -55,6 +59,27 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   @Override
   public final JsonObject config() {
     return this.config;
+  }
+
+  /**
+   * Initialise the verticle.<p>
+   * This is called by Vert.x when the verticle instance is deployed. Don't call it yourself.
+   * @param vertx   the deploying Vert.x instance
+   * @param context the context of the verticle
+   */
+  @Override
+  public void init(Vertx vertx, Context context) {
+    super.init(vertx, context);
+    // get any configuration from the context
+    config.mergeIn(context.config(), true);
+    log = LoggerFactory.getLogger(MainVerticle.class.getSimpleName());
+    this.appErrorHandler = new AppErrorHandler(log);
+
+    // register time module to handle LocalDateTime encoding
+    ObjectMapper mapper = DatabindCodec.mapper();
+    mapper.registerModule(new JavaTimeModule());
+    ObjectMapper prettyMapper = DatabindCodec.prettyMapper();
+    prettyMapper.registerModule(new JavaTimeModule());
   }
 
   /**
@@ -67,10 +92,6 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   @Override
   public void start(Promise<Void> startPromise) throws Exception {
     super.start();
-    // get any configuration from the context
-    config.mergeIn(context.config(), true);
-    log = LoggerFactory.getLogger(MainVerticle.class.getSimpleName());
-
     // configure app then start the server
     configureApp().onComplete(conf -> {
       registerServices();
@@ -116,7 +137,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   protected void startServer(Promise<Void> startPromise) {
     int port = config().getInteger(PORT_PROP, DEFAULT_PORT);
     this.server = vertx.createHttpServer();
-    this.router = router == null ? Router.router(getVertx()) : router.clear();
+    initRouter();
     deployModules();
     server.requestHandler(router);
 
@@ -128,6 +149,15 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
         startPromise.fail(http.cause());
       }
     });
+  }
+
+  /**
+   * Create or clear the main router and setup any global handlers
+   */
+  public void initRouter() {
+    this.router = router == null ? Router.router(getVertx()) : router.clear();
+    this.router.errorHandler(500, appErrorHandler::failureHandler);
+    this.router.errorHandler(404, appErrorHandler::failureHandler);
   }
 
   /**
@@ -187,7 +217,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
       if (stop.succeeded()) {
         log.info("restarting http server...");
         int port = config().getInteger(PORT_PROP, DEFAULT_PORT);
-        router.clear();
+        initRouter();
         registerServices();
         deployModules();
         server.requestHandler(router);

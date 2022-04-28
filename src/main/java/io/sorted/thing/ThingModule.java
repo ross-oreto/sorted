@@ -53,7 +53,7 @@ public class ThingModule extends AppModule {
    * @param ctx Represents the context for the handling of a request in Vert.x-Web.
    */
   protected void index(RoutingContext ctx) {
-    thingRepo.list().onSuccess(ctx::json).onFailure(ctx::fail);
+    thingRepo.list().onSuccess(ctx::json);
   }
 
   /**
@@ -62,6 +62,6 @@ public class ThingModule extends AppModule {
    */
   protected void save(RoutingContext ctx) {
     JsonObject json = ctx.getBodyAsJson();
-    thingRepo.save(json).onSuccess(ctx::json).onFailure(ctx::fail);
+    thingRepo.save(json).onSuccess(ctx::json);
   }
 }
