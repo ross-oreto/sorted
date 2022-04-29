@@ -3,7 +3,9 @@ package io.sorted.app;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.sorted.app.command.AppVersionCommand;
+import io.sorted.app.conf.Configurable;
 import io.sorted.app.error.AppErrorHandler;
+import io.sorted.app.module.AppModule;
 import io.sorted.app.service.Service;
 import io.sorted.info.InfoModule;
 import io.sorted.thing.ThingModule;
@@ -30,8 +32,8 @@ import org.slf4j.LoggerFactory;
  * If any config changes are detected, the server will restart to load the config changes
  */
 public class MainVerticle extends AbstractVerticle implements Configurable {
-  protected static final String PORT_PROP = "port";
-  protected static final int DEFAULT_PORT = 8888;
+  public static final String PORT_PROP = "port";
+  public static final int DEFAULT_PORT = 8888;
 
   private static String version;
 
@@ -94,10 +96,16 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
     super.start();
     // configure app then start the server
     configureApp().onComplete(conf -> {
+      onConfigured();
       registerServices();
       startServer(startPromise);
     });
   }
+
+  /**
+   * Called by MainVerticle after loading all configurations.
+   */
+  protected void onConfigured() { }
 
   /**
    * Stop the verticle.<p>
@@ -195,8 +203,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    */
   protected AppModule[] getModules() {
     return new AppModule[] {
-      new InfoModule()
-      , new ThingModule()
+      new InfoModule(this)
+      , new ThingModule(this)
     };
   }
 

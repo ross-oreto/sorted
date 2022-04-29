@@ -1,5 +1,6 @@
-package io.sorted.app;
+package io.sorted.app.module;
 
+import io.sorted.app.conf.IMode;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
@@ -19,8 +20,10 @@ public abstract class AppModule extends AbstractVerticle implements IMode {
 
   protected final Logger log;
   protected final Router router;
+  private final IMode mode;
 
-  public AppModule() {
+  public AppModule(IMode mode) {
+    this.mode = mode;
     this.log = LoggerFactory.getLogger(getName());
     this.router = Router.router(vertx);
   }
@@ -51,5 +54,23 @@ public abstract class AppModule extends AbstractVerticle implements IMode {
   public void stop() throws Exception {
     super.stop();
     log.info("stopping module {}", getName());
+  }
+
+  /**
+   * Get the current app mode
+   * @return The application mode
+   */
+  @Override
+  public String getMode() {
+    return mode.getMode();
+  }
+
+  /**
+   * Determine if running in a debug mode
+   * @return True if in debug mode, false otherwise
+   */
+  @Override
+  public boolean isDebugging() {
+    return mode.isDebugging();
   }
 }

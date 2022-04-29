@@ -1,6 +1,7 @@
 package io.sorted.thing;
 
-import io.sorted.app.AppModule;
+import io.sorted.app.conf.IMode;
+import io.sorted.app.module.AppModule;
 import io.sorted.app.service.Service;
 import io.vertx.core.Context;
 import io.vertx.core.Promise;
@@ -11,6 +12,10 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class ThingModule extends AppModule {
   private ThingRepo thingRepo;
+
+  public ThingModule(IMode mode) {
+    super(mode);
+  }
 
   /**
    * Get the name of the module, which implies the subdomain route
@@ -31,8 +36,8 @@ public class ThingModule extends AppModule {
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
     thingRepo = Service.get(vertx, ThingRepo.class);
-    router.get().handler(this::index);
-    router.post().handler(BodyHandler.create()).handler(this::save);
+    router.get("/").handler(this::index);
+    router.post("/").handler(BodyHandler.create()).handler(this::save);
   }
 
   /**

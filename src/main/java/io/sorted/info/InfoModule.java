@@ -1,8 +1,8 @@
 package io.sorted.info;
 
-import io.sorted.app.AppModule;
-import io.sorted.app.IMode;
 import io.sorted.app.MainVerticle;
+import io.sorted.app.conf.IMode;
+import io.sorted.app.module.AppModule;
 import io.vertx.core.Context;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonObject;
@@ -12,8 +12,12 @@ import io.vertx.ext.web.RoutingContext;
  * Module that reports basic information about the application
  */
 public class InfoModule extends AppModule {
-  protected static final String JAVA_VER_PROP = "javaVersion";
+  public static final String JAVA_VER_PROP = "javaVersion";
   public static final String javaVersion = IMode.getJavaVersion();
+
+  public InfoModule(IMode mode) {
+    super(mode);
+  }
 
   /**
    * Get the name of the module, which implies the subdomain route
@@ -33,7 +37,7 @@ public class InfoModule extends AppModule {
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
-    router.route().handler(this::index);
+    router.get("/").handler(this::index);
   }
 
   /**

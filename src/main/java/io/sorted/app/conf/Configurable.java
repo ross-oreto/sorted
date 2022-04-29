@@ -1,4 +1,4 @@
-package io.sorted.app;
+package io.sorted.app.conf;
 
 import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
