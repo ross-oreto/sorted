@@ -21,11 +21,12 @@ public record AppErrorHandler(Logger log) {
    * @param ctx Represents the context for the handling of a request in Vert.x-Web.
    */
   public void failureHandler(int status, RoutingContext ctx) {
-    log.error(String.valueOf(status), ctx.failure());
+    HttpStatus httpStatus = HttpStatus.valueOf(status);
+    log.error(httpStatus.toString(), ctx.failure());
     ctx.response()
       .setStatusCode(status)
       .send(errorResponse(ctx.failure()
-        , HttpStatus.valueOf(ctx.statusCode())
+        , httpStatus
         , ctx.request()).encodePrettily());
   }
 
@@ -34,6 +35,6 @@ public record AppErrorHandler(Logger log) {
    * @param ctx Represents the context for the handling of a request in Vert.x-Web.
    */
   public void failureHandler(RoutingContext ctx) {
-    failureHandler(HttpStatus.INTERNAL_SERVER_ERROR.value(), ctx);
+    failureHandler(ctx.statusCode(), ctx);
   }
 }
