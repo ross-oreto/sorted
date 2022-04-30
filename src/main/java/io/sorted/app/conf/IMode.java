@@ -53,7 +53,7 @@ public interface IMode {
   }
 
   /**
-   * Determine if running in a debug mode
+   * Determine if running in debug mode
    * @return True if in debug mode, false otherwise
    */
   default boolean isDebugging() {

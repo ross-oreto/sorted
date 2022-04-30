@@ -1,4 +1,4 @@
-package io.sorted.thing;
+package io.sorted.product;
 
 import io.sorted.app.conf.IMode;
 import io.sorted.app.module.AppModule;
@@ -10,10 +10,10 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
-public class ThingModule extends AppModule {
-  private ThingRepo thingRepo;
+public class ProductModule extends AppModule {
+  private ProductRepo productRepo;
 
-  public ThingModule(IMode mode) {
+  public ProductModule(IMode mode) {
     super(mode);
   }
 
@@ -23,7 +23,7 @@ public class ThingModule extends AppModule {
    */
   @Override
   public String getName() {
-    return "thing";
+    return "product";
   }
 
   /**
@@ -35,7 +35,7 @@ public class ThingModule extends AppModule {
   @Override
   public void init(Vertx vertx, Context context) {
     super.init(vertx, context);
-    thingRepo = Service.get(vertx, ThingRepo.class);
+    productRepo = Service.get(vertx, ProductRepo.class);
     router.get("/").handler(this::index);
     router.post("/").handler(BodyHandler.create()).handler(this::save);
   }
@@ -50,23 +50,23 @@ public class ThingModule extends AppModule {
   @Override
   public void stop(Promise<Void> stopPromise) throws Exception {
     super.stop();
-    thingRepo.close().onComplete(result -> stopPromise.complete());
+    productRepo.close().onComplete(result -> stopPromise.complete());
   }
 
   /**
-   * list things
+   * list products
    * @param ctx Represents the context for the handling of a request in Vert.x-Web.
    */
   protected void index(RoutingContext ctx) {
-    thingRepo.list().onSuccess(ctx::json);
+    productRepo.list().onSuccess(ctx::json);
   }
 
   /**
-   * save things
+   * save products
    * @param ctx Represents the context for the handling of a request in Vert.x-Web.
    */
   protected void save(RoutingContext ctx) {
     JsonObject json = ctx.getBodyAsJson();
-    thingRepo.save(json).onSuccess(ctx::json);
+    productRepo.save(json).onSuccess(ctx::json);
   }
 }

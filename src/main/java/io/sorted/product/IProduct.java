@@ -1,10 +1,12 @@
-package io.sorted.thing;
+package io.sorted.product;
 
-public interface IThing {
-  String type();
+public interface IProduct {
+  static String collection() {
+    return "products";
+  }
+
   String name();
   String description();
-
   Integer rank();
 
   default boolean unranked() {

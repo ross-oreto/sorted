@@ -49,13 +49,13 @@ public class TestMainVerticle {
   }
 
   @Test
-  public void verticle_deployed(TestContext testContext) throws Throwable {
+  public void verticle_deployed(TestContext testContext) {
     Async async = testContext.async();
     async.complete();
   }
 
   @Test
-  public void checkInfo(TestContext context) throws Throwable {
+  public void checkInfo(TestContext context) {
     HttpClient client = rule.vertx().createHttpClient();
 
     client.request(HttpMethod.GET, TEST_PORT, "localhost", "/info")

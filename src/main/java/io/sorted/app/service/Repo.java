@@ -81,4 +81,16 @@ public interface Repo {
    * @return A future containing the deleted document
    */
   Future<JsonObject> delete(JsonObject query);
+
+  /**
+   * Delete all documents in the collection
+   * @return The number of removed documents
+   */
+  Future<Long> deleteAll();
+
+  /**
+   * Drop the collection
+   * @return {@code Future} of the asynchronous result
+   */
+  Future<Void> drop();
 }

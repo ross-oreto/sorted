@@ -3,6 +3,7 @@ package io.sorted.app.service;
 import io.vertx.core.Future;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.mongo.MongoClientDeleteResult;
 
 import java.util.List;
 
@@ -124,6 +125,24 @@ public abstract class RepoImpl implements Repo, Collectable {
   @Override
   public Future<JsonObject> delete(JsonObject query) {
     return mongo.findOneAndDelete(collectionName, query);
+  }
+
+  /**
+   * Delete all documents in the collection
+   * @return The number of removed documents
+   */
+  @Override
+  public Future<Long> deleteAll() {
+    return mongo.removeDocuments(collectionName, new JsonObject()).map(MongoClientDeleteResult::getRemovedCount);
+  }
+
+  /**
+   * Drop the collection
+   * @return {@code Future} of the asynchronous result
+   */
+  @Override
+  public Future<Void> drop() {
+    return mongo.dropCollection(collectionName);
   }
 
   /**

@@ -8,9 +8,10 @@ import io.sorted.app.error.AppErrorHandler;
 import io.sorted.app.module.AppModule;
 import io.sorted.app.service.Service;
 import io.sorted.info.InfoModule;
-import io.sorted.thing.ThingModule;
-import io.sorted.thing.ThingRepo;
-import io.sorted.thing.ThingRepoImpl;
+import io.sorted.product.IProduct;
+import io.sorted.product.ProductModule;
+import io.sorted.product.ProductRepo;
+import io.sorted.product.ProductRepoImpl;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
@@ -172,8 +173,8 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    * Register any needed services on the event bus
    */
   protected void registerServices() {
-    registerService(ThingRepo.class
-      , new ThingRepoImpl(MongoClient.createShared(vertx, config.getJsonObject("mongo")), "things"));
+    registerService(ProductRepo.class
+      , new ProductRepoImpl(MongoClient.createShared(vertx, config.getJsonObject("mongo")), IProduct.collection()));
   }
 
   /**
@@ -204,7 +205,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   protected AppModule[] getModules() {
     return new AppModule[] {
       new InfoModule(this)
-      , new ThingModule(this)
+      , new ProductModule(this)
     };
   }
 

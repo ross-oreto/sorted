@@ -5,11 +5,16 @@ package io.sorted.app.http;
  *
  * <p>The HTTP status code series can be retrieved via {@link #series()}.
  *
+ * @author Arjen Poutsma
+ * @author Sebastien Deleuze
+ * @author Brian Clozel
+ * @since 3.0
  * @see HttpStatus.Series
  * @see <a href="https://www.iana.org/assignments/http-status-codes">HTTP Status Code Registry</a>
  * @see <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes">List of HTTP status codes - Wikipedia</a>
  */
 public enum HttpStatus {
+
   // 1xx Informational
   /**
    * {@code 100 Continue}.
@@ -34,7 +39,6 @@ public enum HttpStatus {
   CHECKPOINT(103, Series.INFORMATIONAL, "Checkpoint"),
 
   // 2xx Success
-
   /**
    * {@code 200 OK}.
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.3.1">HTTP/1.1: Semantics and Content, section 6.3.1</a>
@@ -87,7 +91,6 @@ public enum HttpStatus {
   IM_USED(226, Series.SUCCESSFUL, "IM Used"),
 
   // 3xx Redirection
-
   /**
    * {@code 300 Multiple Choices}.
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.4.1">HTTP/1.1: Semantics and Content, section 6.4.1</a>
@@ -113,7 +116,6 @@ public enum HttpStatus {
    * @see <a href="https://tools.ietf.org/html/rfc7232#section-4.1">HTTP/1.1: Conditional Requests, section 4.1</a>
    */
   NOT_MODIFIED(304, Series.REDIRECTION, "Not Modified"),
-
   /**
    * {@code 307 Temporary Redirect}.
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.4.7">HTTP/1.1: Semantics and Content, section 6.4.7</a>
@@ -202,7 +204,6 @@ public enum HttpStatus {
    *     HTTP/1.1: Semantics and Content, section 6.5.11</a>
    */
   PAYLOAD_TOO_LARGE(413, Series.CLIENT_ERROR, "Payload Too Large"),
-
   /**
    * {@code 414 URI Too Long}.
    * @since 4.1
@@ -210,7 +211,6 @@ public enum HttpStatus {
    *     HTTP/1.1: Semantics and Content, section 6.5.12</a>
    */
   URI_TOO_LONG(414, Series.CLIENT_ERROR, "URI Too Long"),
-
   /**
    * {@code 415 Unsupported Media Type}.
    * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.5.13">
@@ -351,7 +351,6 @@ public enum HttpStatus {
     VALUES = values();
   }
 
-
   private final int value;
 
   private final Series series;
@@ -365,9 +364,6 @@ public enum HttpStatus {
   }
 
 
-  /**
-   * Return the integer value of this status code.
-   */
   public int value() {
     return this.value;
   }
@@ -388,59 +384,50 @@ public enum HttpStatus {
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 4.0
-   * @see #series()
+   * Whether this status code is in the Informational class ({@code 1xx}).
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.1">RFC 2616</a>
    */
   public boolean is1xxInformational() {
     return (series() == Series.INFORMATIONAL);
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 4.0
-   * @see #series()
+   * Whether this status code is in the Successful class ({@code 2xx}).
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.2">RFC 2616</a>
    */
   public boolean is2xxSuccessful() {
     return (series() == Series.SUCCESSFUL);
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 4.0
-   * @see #series()
+   * Whether this status code is in the Redirection class ({@code 3xx}).
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.3">RFC 2616</a>
    */
   public boolean is3xxRedirection() {
     return (series() == Series.REDIRECTION);
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 4.0
-   * @see #series()
+   * Whether this status code is in the Client Error class ({@code 4xx}).
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.4">RFC 2616</a>
    */
   public boolean is4xxClientError() {
     return (series() == Series.CLIENT_ERROR);
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 4.0
-   * @see #series()
+   * Whether this status code is in the Server Error class ({@code 5xx}).
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.5">RFC 2616</a>
    */
   public boolean is5xxServerError() {
     return (series() == Series.SERVER_ERROR);
   }
 
   /**
-   * Whether this status code is in the HTTP series
-   * <p>This is a shortcut for checking the value of {@link #series()}.
-   * @since 5.0
+   * Whether this status code is in the Client or Server Error class
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.4">RFC 2616</a>
+   * @see <a href="https://datatracker.ietf.org/doc/html/rfc2616#section-10.3">RFC 2616</a>
+   * ({@code 4xx} or {@code 5xx}).
    * @see #is4xxClientError()
    * @see #is5xxServerError()
    */
@@ -455,7 +442,6 @@ public enum HttpStatus {
   public String toString() {
     return this.value + " " + name();
   }
-
 
   /**
    * Return the {@code HttpStatus} enum constant with the specified numeric value.
@@ -486,11 +472,13 @@ public enum HttpStatus {
     }
     return null;
   }
+
   /**
    * Enumeration of HTTP status series.
    * <p>Retrievable via {@link HttpStatus#series()}.
    */
   public enum Series {
+
     INFORMATIONAL(1),
     SUCCESSFUL(2),
     REDIRECTION(3),
@@ -499,6 +487,9 @@ public enum HttpStatus {
 
     private final int value;
 
+    /**
+     * Return the integer value of this status code.
+     */
     Series(int value) {
       this.value = value;
     }
@@ -541,4 +532,3 @@ public enum HttpStatus {
     }
   }
 }
-
