@@ -4,6 +4,10 @@ image:https://img.shields.io/badge/vert.x-4.2.7-purple.svg[link="https://vertx.i
 
 == A web application to sort things out
 
+== Requirements
+* JDK 17+
+* maven 3.8.5+
+
 == Building
 
 To launch your tests:
@@ -73,7 +77,7 @@ java -jar target/sorted.jar -Dmode=prod
 Modules are similar to MVC controllers.
 
 * To create a new module extend io.sorted.app.AppModule
-* The modules routes will automatically be mounted a sub routes using the modules name. For example the InfoModule is mounted at /info
+* The module routes will automatically be mounted as sub routes using the modules name. For example the InfoModule is mounted at /info
 * finally register the new module in the MainVerticle getModules method and the MainVerticle will deploy the new module.
 
 == Dependency Injection/Services

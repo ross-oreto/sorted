@@ -8,15 +8,13 @@ import io.sorted.app.error.AppErrorHandler;
 import io.sorted.app.module.AppModule;
 import io.sorted.app.service.Service;
 import io.sorted.info.InfoModule;
-import io.sorted.product.IProduct;
-import io.sorted.product.ProductModule;
-import io.sorted.product.ProductRepo;
-import io.sorted.product.ProductRepoImpl;
+import io.sorted.product.*;
 import io.vertx.core.*;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonObject;
 import io.vertx.core.json.jackson.DatabindCodec;
 import io.vertx.ext.mongo.MongoClient;
+import io.vertx.ext.web.Route;
 import io.vertx.ext.web.Router;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -165,7 +163,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    */
   public void initRouter() {
     this.router = router == null ? Router.router(getVertx()) : router.clear();
-    this.router.errorHandler(500, appErrorHandler::failureHandler);
+    this.router.route().path("/*").failureHandler(appErrorHandler::failureHandler);
     this.router.errorHandler(404, appErrorHandler::failureHandler);
   }
 
@@ -192,8 +190,9 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
    */
   protected void deployModules() {
     for (AppModule app : getModules()) {
+      Route route = router.route(String.format("/%s/*", app.getName()));
       vertx.deployVerticle(app).onSuccess(
-        id -> router.mountSubRouter(String.format("/%s", app.getName()), app.getRouter())
+        id -> route.subRouter(app.getRouter())
       ).onFailure(t -> log.error("error deploying module {}: {}", app.getName(), t.getMessage()));
     }
   }
@@ -205,7 +204,7 @@ public class MainVerticle extends AbstractVerticle implements Configurable {
   protected AppModule[] getModules() {
     return new AppModule[] {
       new InfoModule(this)
-      , new ProductModule(this)
+      , new ProductModule(this, ProductRepo.class, Product.class)
     };
   }
 

@@ -1,8 +1,15 @@
 package io.sorted.app.module;
 
+import am.ik.yavi.core.ConstraintViolationsException;
+import am.ik.yavi.core.Validator;
 import io.sorted.app.conf.IMode;
+import io.sorted.app.http.Http;
+import io.sorted.app.http.HttpStatus;
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Handler;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.RoutingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,5 +79,34 @@ public abstract class AppModule extends AbstractVerticle implements IMode {
   @Override
   public boolean isDebugging() {
     return mode.isDebugging();
+  }
+
+  /**
+   * Validate the request object class using the specified validator
+   * @param validator The validator used to validate the request object
+   * @param aClass The type of object to validate
+   * @return The validation handler
+   * @param <T> The type of object being validated
+   */
+  protected <T> Handler<RoutingContext> validationHandler(Validator<T> validator, Class<T> aClass) {
+    return ctx -> {
+      JsonObject result = ctx.get(getName());
+      validator.applicative().validate(result == null ? ctx.body().asPojo(aClass) : result.mapTo(aClass)
+        , Http.getLocale(ctx)).orElseThrow(ConstraintViolationsException::new);
+      ctx.next();
+    };
+  }
+
+  /**
+   * Make sure result is not null and if so return as JSON, otherwise fail 404
+   * @param ctx Represents the context for the handling of a request in Vert.x-Web
+   * @return The context handler
+   * @param <T> The type of result
+   */
+  protected <T> Handler<T> notNullHandler(RoutingContext ctx) {
+    return it -> {
+      if (it == null) ctx.fail(HttpStatus.NOT_FOUND.value());
+      else ctx.json(it);
+    };
   }
 }

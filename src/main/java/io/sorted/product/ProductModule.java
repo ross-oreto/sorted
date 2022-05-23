@@ -1,20 +1,28 @@
 package io.sorted.product;
 
+import am.ik.yavi.core.Constraint;
+import am.ik.yavi.core.Validator;
 import io.sorted.app.conf.IMode;
-import io.sorted.app.module.AppModule;
-import io.sorted.app.service.Service;
-import io.vertx.core.Context;
-import io.vertx.core.Promise;
-import io.vertx.core.Vertx;
-import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
-import io.vertx.ext.web.handler.BodyHandler;
+import io.sorted.app.module.RepoModule;
+import io.sorted.app.validation.i18nValidatorBuilder;
 
-public class ProductModule extends AppModule {
-  private ProductRepo productRepo;
+/**
+ * Module to manage products
+ */
+public class ProductModule extends RepoModule<ProductRepo, Product> {
+  public ProductModule(IMode mode, Class<ProductRepo> repoClass, Class<Product> collectionClass) {
+    super(mode, repoClass, collectionClass);
+  }
 
-  public ProductModule(IMode mode) {
-    super(mode);
+  /**
+   * Validation used before creating products
+   * @return A new validator
+   */
+  @Override
+  protected Validator<Product> saveValidator() {
+    return i18nValidatorBuilder.<Product>of()
+      .constraint(Product::name, "name", Constraint::notNull)
+      .build();
   }
 
   /**
@@ -24,49 +32,5 @@ public class ProductModule extends AppModule {
   @Override
   public String getName() {
     return "product";
-  }
-
-  /**
-   * Initialise the verticle.<p>
-   * This is called by Vert.x when the verticle instance is deployed. Don't call it yourself.
-   * @param vertx  the deploying Vert.x instance
-   * @param context  the context of the verticle
-   */
-  @Override
-  public void init(Vertx vertx, Context context) {
-    super.init(vertx, context);
-    productRepo = Service.get(vertx, ProductRepo.class);
-    router.get("/").handler(this::index);
-    router.post("/").handler(BodyHandler.create()).handler(this::save);
-  }
-
-  /**
-   * Stop the verticle.<p>
-   * This is called by Vert.x when the verticle instance is un-deployed. Don't call it yourself.<p>
-   * If your verticle does things in its shut-down which take some time then you can override this method
-   * and call the stopFuture some time later when clean-up is complete.
-   * @param stopPromise a promise which should be called when verticle clean-up is complete.
-   */
-  @Override
-  public void stop(Promise<Void> stopPromise) throws Exception {
-    super.stop();
-    productRepo.close().onComplete(result -> stopPromise.complete());
-  }
-
-  /**
-   * list products
-   * @param ctx Represents the context for the handling of a request in Vert.x-Web.
-   */
-  protected void index(RoutingContext ctx) {
-    productRepo.list().onSuccess(ctx::json);
-  }
-
-  /**
-   * save products
-   * @param ctx Represents the context for the handling of a request in Vert.x-Web.
-   */
-  protected void save(RoutingContext ctx) {
-    JsonObject json = ctx.getBodyAsJson();
-    productRepo.save(json).onSuccess(ctx::json);
   }
 }

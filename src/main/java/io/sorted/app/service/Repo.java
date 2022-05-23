@@ -69,6 +69,22 @@ public interface Repo {
   Future<JsonObject> update(JsonObject query, JsonObject update);
 
   /**
+   * Find a single matching document in the specified collection and replace it.
+   * @param id the id used to match the document
+   * @param update used to describe how the documents will be replaced
+   * @return A future containing the replaced document
+   */
+  Future<JsonObject> replaceById(String id, JsonObject update);
+
+  /**
+   * Find a single matching document in the specified collection and replace it.
+   * @param query the query used to match the document
+   * @param update used to describe how the documents will be replaced
+   * @return A future containing the replaced document
+   */
+  Future<JsonObject> replace(JsonObject query, JsonObject update);
+
+  /**
    * Find a single matching document in the specified collection and delete it.
    * @param id the id used to match the document
    * @return A future containing the deleted document
